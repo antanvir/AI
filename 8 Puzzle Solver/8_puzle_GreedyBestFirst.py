@@ -1,7 +1,8 @@
 import math
 
 board = []
-goalState = [1, 2, 3, 8, 0, 4, 7, 6, 5]
+# goalState = [1, 2, 3, 8, 0, 4, 7, 6, 5]
+goalState = [1, 2, 3, 4, 5, 6, 7, 8, 0]
 frontier = []
 previousState = []
 result = []
@@ -10,7 +11,7 @@ counter = 0
 
 
 def readFile():
-    file = open("sample3.txt", "r+")
+    file = open("sample4.txt", "r+")
     initialState = file.readlines()
 
     for line in initialState:
@@ -22,22 +23,6 @@ def readFile():
     print("Initial state: ", board)
     print("Goal state: ", goalState)
     # print(board[1])
-
-
-def isSolvable(state):
-    i = 0
-    count = 0
-    length = len(state)
-    while i < length:
-        j = i + 1
-        while j < length:
-            if state[j] != 0 and state[i] > state[j]:
-                count += 1
-            j += 1
-        i += 1
-    print(count)
-    return count % 2 == 0
-
 
 
 
@@ -69,69 +54,56 @@ def move(state, pos0, steps):
     return newState
 
 
-
-# def getSuccessors(state, i):
-#     # print("==============================")
-#     successors = []
-#     parentOfCurrentNode = previousState[i]
-
-#     pos0 = state.index(0)
-#     row = pos0 // 3
-#     col = pos0 % 3
-
-#     if row > 0:
-#         newState = move(state, pos0, -3)
-#         if not compare(newState, parentOfCurrentNode):
-#             # print(newState)
-#             successors.append(newState)
-#             previousState.append(state)
-#     if col > 0:
-#         newState = move(state, pos0, -1)
-#         if not compare(newState, parentOfCurrentNode):
-#             # print(newState)
-#             successors.append(newState)
-#             previousState.append(state)
-#     if row < 2:
-#         newState = move(state, pos0, 3)
-#         if not compare(newState, parentOfCurrentNode):
-#             # print(newState)
-#             successors.append(newState)
-#             previousState.append(state)
-#     if col < 2:
-#         newState = move(state, pos0, 1)
-#         if not compare(newState, parentOfCurrentNode):
-#             # print(newState)
-#             successors.append(newState)
-#             previousState.append(state)
-#     return successors
-
-
-# def BFS():
-#     global size
-#     frontier.append(board)
-#     previousState.append(None)
-
-#     size += 1
-#     i = 0
-#     while i < size:
-#         if compare(frontier[i], goalState):
-#             # print("matched\tsize: ", size, "\nstate: ", frontier[i])
-#             stepCounter(i)
-#             return
-#         else:
-#             successors = getSuccessors(frontier[i], i)
-#             # for _ in successors:
-#             #     print(_)
-#             for j in range(0, len(successors)):
-#                 frontier.append(successors[j])
-#                 size += 1
-#                 # print(size)
-#         i += 1
+def heuristicFunction(state):
+    count = 0
+    for i in range(0, len(goalState)):
+        gRow = i // 3
+        gCol = i % 3
+        pos = state.index(goalState[i])
+        cRow = pos // 3
+        cCol = pos % 3
+        count += abs(gRow - cRow) + abs(gCol - cCol)
+    return count
 
 
 
-def getSuccessor(state):
-    ""
+def getSuccessor(state, i):
+    heuristicValue = 0
+    successor = None
+    possibleSuccessors = []
+    heuristics = []
+    parentOfCurrentNode = previousState[i]
+
+    pos0 = state.index(0)
+    row = pos0 // 3
+    col = pos0 % 3
+
+    if row > 0:
+        newState = move(state, pos0, -3)
+        if not compare(newState, parentOfCurrentNode):
+            heuristics.append(heuristicFunction(newState))
+            possibleSuccessors.append(newState)
+    if col > 0:
+        newState = move(state, pos0, -1)
+        if not compare(newState, parentOfCurrentNode):
+           heuristics.append(heuristicFunction(newState))
+           possibleSuccessors.append(newState)
+    if row < 2:
+        newState = move(state, pos0, 3)
+        if not compare(newState, parentOfCurrentNode):
+            heuristics.append(heuristicFunction(newState))
+            possibleSuccessors.append(newState)
+    if col < 2:
+        newState = move(state, pos0, 1)
+        if not compare(newState, parentOfCurrentNode):
+            heuristics.append(heuristicFunction(newState))
+            possibleSuccessors.append(newState)
+    posMin =   heuristics.index(min(heuristics))
+    successor = possibleSuccessors[posMin]
+    # print(possibleSuccessors)
+    # print(heuristics)
+    # print(successor)
+    return successor
 
 
 def GreedyBestFirst():
@@ -142,12 +114,12 @@ def GreedyBestFirst():
     size += 1
     i = 0
     while not compare(frontier[i], goalState):
-        successor = getSuccessor(frontier[i])
+        successor = getSuccessor(frontier[i], i)
         frontier.append(successor)
         previousState.append(frontier[i])
         size += 1
         i += 1
-    stepCounter()
+    stepCounter(i)
     return
         
 
@@ -158,9 +130,9 @@ def main():
     print("It took ", counter, " steps to solve the 8-puzzle.")
     print("Solving steps:")
     for _ in result:
-        print(_)
- 
+        print(_) 
 
 
 if __name__ == "__main__":
     main()
+    # 8_puzle_GreedyBestFirst.py
