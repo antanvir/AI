@@ -1,0 +1,2 @@
+# INTELLIGENT GOMOKU GAME
+  AI Project - 1
