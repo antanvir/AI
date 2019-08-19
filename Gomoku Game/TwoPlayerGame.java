@@ -80,6 +80,7 @@ public class TwoPlayerGame {
 		
 		public void run() {
 			if(gameFinished) return;
+			boolean isWinner = false;
 			
 			// Find out which cell of the board do the clicked coordinates belong to.
 			if(isFirstPlayersTurn) {
@@ -89,16 +90,13 @@ public class TwoPlayerGame {
 				
 				// Place a black stone to that cell.
 				if(!playMove(posX, posY, true)) {
-					// If the cell is already populated, do nothing.
-//					isFirstPlayersTurn = false;
-					setPlayersTurn(!isFirstPlayersTurn);
 					return;
 				}
 				
 				// Check if the last move ends the game.
-				winner = checkWinner();
+				isWinner = checkWinner(2);
 				
-				if(winner == 2) {
+				if(isWinner) {
 					System.out.println("1st PLAYER WON!");
 					board.printWinner(winner, "1st PLAYER WON!");
 					gameFinished = true;
@@ -112,16 +110,13 @@ public class TwoPlayerGame {
 				
 				// Place a white stone to that cell.
 				if(!playMove(posX, posY, false)) {
-					// If the cell is already populated, do nothing.
-//					isFirstPlayersTurn = true;
-					setPlayersTurn(!isFirstPlayersTurn);
 					return;
 				}
 				
 				// Check if the last move ends the game.
-				winner = checkWinner();
+				isWinner = checkWinner(1);
 				
-				if(winner == 1) {
+				if(isWinner) {
 					System.out.println("2nd Player WON!");
 					board.printWinner(winner, "2nd PLAYER WON!");
 					gameFinished = true;
@@ -148,11 +143,94 @@ public class TwoPlayerGame {
 		System.out.println("Let's see! " + isFirstPlayersTurn);
 	}
 	
-	private int checkWinner() {
-		if(Minimax.getScore(board, true, false) >= Minimax.getWinScore()) return 2; // Black stone, Human Player
-		if(Minimax.getScore(board, false, true) >= Minimax.getWinScore()) return 1;
-		return 0;
+	
+	private boolean checkWinner(int playerID) {
+		int[][] boardMatrix = board.getBoardMatrix();
+		
+		
+		for(int i=0; i<boardMatrix.length; i++) {
+			int consecutive = 0;
+			for(int j=0; j<boardMatrix[0].length; j++) {
+				
+				if(consecutive >= 5) {
+					return true;
+				}
+				if(boardMatrix[i][j] == playerID) {
+					consecutive++;
+					
+				}
+				else if(consecutive > 0 && boardMatrix[i][j] != playerID) {
+					consecutive = 0;
+				}
+			}
+			
+		}
+		
+		for(int j=0; j<boardMatrix.length; j++) {
+			int consecutive = 0;
+			for(int i=0; i<boardMatrix[0].length; i++) {
+				
+				if(consecutive >= 5) {
+					return true;
+				}
+				if(boardMatrix[i][j] == playerID) {
+					consecutive++;
+				}
+				else if(consecutive > 0 && boardMatrix[i][j] != playerID) {
+					consecutive = 0;
+				}
+			}
+
+		}
+		
+		// From bottom-left to top-right diagonally
+		for (int k = 0; k <= 2 * (boardMatrix.length - 1); k++) {
+			int iStart = Math.max(0, k - boardMatrix.length + 1);
+			int iEnd = Math.min(boardMatrix.length - 1, k);
+			
+			int consecutive = 0;
+			for (int i = iStart; i <= iEnd; ++i) {
+				int j = k - i;
+				if(consecutive >= 5) {
+					return true;
+				}
+				if(boardMatrix[i][j] == playerID) {
+					consecutive++;
+				}
+				else if(consecutive > 0 && boardMatrix[i][j] != playerID) {
+					consecutive = 0;
+				}
+			}
+		}
+		
+		// From top-left to bottom-right diagonally
+		for (int k = 1-boardMatrix.length; k < boardMatrix.length; k++) {
+			int iStart = Math.max(0, k);
+			int iEnd = Math.min(boardMatrix.length + k - 1, boardMatrix.length-1);
+			
+			int consecutive = 0;
+			for (int i = iStart; i <= iEnd; ++i) {
+				int j = i - k;
+				if(consecutive >= 5) {
+					return true;
+				}
+				if(boardMatrix[i][j] == playerID) {
+					consecutive++;
+				}
+				else if(consecutive > 0 && boardMatrix[i][j] != playerID) {
+					consecutive = 0;
+				}
+			}
+		}
+		
+		return false;
 	}
+	
+//	private int checkWinner() {
+//		if(Minimax.getScore(board, true, false) >= Minimax.getWinScore()) return 2; // Black stone, Human Player
+//		if(Minimax.getScore(board, false, true) >= Minimax.getWinScore()) return 1;
+//		return 0;
+//	}
 	
 	
 	private boolean playMove(int posX, int posY, boolean black) {
