@@ -25,10 +25,7 @@ public class MainClass {
 			public void actionPerformed(ActionEvent arg0) {
 				
 				
-//				Object[] settings = gui.fetchSettings();
 				
-//				int depth = (Integer)(settings[0]);
-//				boolean computerStarts = (Boolean)(settings[1]);
 				boolean computerStarts = false;
 				int depth = 4;
 				boolean playingWithComputer = gui.playWithComputer();
